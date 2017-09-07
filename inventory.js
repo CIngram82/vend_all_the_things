@@ -54,7 +54,9 @@ function getItById(itemId){
 
 function buyItem(itemId,moneyIn){
   return getItById(itemId).then(function(item) {
-    if(moneyIn >= item.cost){
+    if(moneyIn >= item.cost && item.quantity > 0){
+      updateQuantity(itemId).then()
+      addPurchasesRecord(itemId).then()
       return {
         status: "success",
         itemId: itemId,
@@ -77,11 +79,10 @@ function buyItem(itemId,moneyIn){
 function updateQuantity(itemId){
   return getItById(itemId).then(function(item){
     let quantity = item.quantity;
-    return Items.update({quantity: quantity - 1}, { where: { id: itemId }})
+    Items.update({quantity: quantity - 1}, { where: { id: itemId }})
+    return
   })
 }
-
-// above is tested and working
 
 function addPurchasesRecord(itemId){
   return getItById(itemId).then(function(item){
@@ -93,7 +94,41 @@ function addPurchasesRecord(itemId){
   })
 }
 
+// above is tested and working
 
+function newItem(description, cost, quantity){
+  Items.create({
+    description: description,
+    cost: cost,
+    quantity: quantity
+  }).then(function() {
+    return {
+      status: "success",
+      message: "Item added"
+    };
+  }).catch(function(err) {
+    console.log(err);
+  });
+};
+
+function updateItem(itemId,description,cost,quantity){
+  Items.update({
+    description: description,
+    cost: cost,
+    quantity: quantity
+  },{
+    where:{id:itemId}
+  }).then(function(){
+    console.log("success")
+    return {
+      status: "success",
+      message: "Item updated"
+    };
+    
+  }).catch(function(err){
+    console.log(err);
+  });
+};
 
 module.exports = {
   //functions dealing with inventory
@@ -103,4 +138,6 @@ module.exports = {
     updateQuantity: updateQuantity,
     addPurchasesRecord: addPurchasesRecord,
     getAllPucheses: getAllPucheses,
+    newItem: newItem,
+    updateItem: updateItem,
 };
